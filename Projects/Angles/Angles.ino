@@ -6,7 +6,7 @@
 #include "HMCCompass.h"
 
 #define DISTANCE 0.3
-#define NO_COMPASS 1
+#define NO_COMPASS 2
 #define SCL 2
 #define SDA1 3
 //Default: A4 SDA, A5 SCL
@@ -18,7 +18,7 @@ float yawInit[NO_COMPASS];
 bool isClockwise;
 
 void setup(){
-  Serial.begin(9600);//115200
+  Serial.begin(19200);//Recommended 19200
   Wire.begin();
   for (int i = 0; i < NO_COMPASS; i++){
     compass[i] = Compass(SDA1 + i, SCL);
@@ -35,10 +35,10 @@ void loop(){
   float y;
   for (int i = 0; i < NO_COMPASS; i++){
     threeD rot = compass[i].getVal();
-    x = DISTANCE * tan(rot.y - pitchInit[i]);
-    y = DISTANCE * tan(rot.z - yawInit[i]);
+    //x = DISTANCE * tan(rot.y - pitchInit[i]);
+    //y = DISTANCE * tan(rot.z - yawInit[i]);.
     if (i == NO_COMPASS-1)
-      sPrint(x, y, 0, true);
-    else sPrint(x, y, 0, false);
+      sPrint(rot.x, rot.y, rot.z, true);
+    else sPrint(rot.x, rot.y, rot.z, false);
   }
 }
