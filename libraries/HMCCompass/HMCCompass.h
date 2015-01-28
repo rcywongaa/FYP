@@ -8,7 +8,6 @@
 
 class Compass : public I2CDevice {
 	private:
-		Accelerometer accel;
 		threeD ByteRead6(int, int);
 		threeD prev;
 

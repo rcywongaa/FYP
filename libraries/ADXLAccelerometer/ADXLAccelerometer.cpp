@@ -1,10 +1,8 @@
 #include "ADXLAccelerometer.h"
 
-#define THRESH 500
+#define THRESH 1000
 #define ALPHA 0.1
-/***** Private Methods *****/
 
-/***** Public Methods *****/
 Accelerometer::Accelerometer():I2CDevice(){
 	addr = 0x53;
 }
@@ -21,6 +19,7 @@ void Accelerometer::init(){
 	prev.x = 0;
 	prev.y = 0;
 	prev.z = 0;
+	delay(50);
 }
 
 threeD Accelerometer::getVal(){
@@ -38,36 +37,6 @@ threeD Accelerometer::getVal(){
 	//sPrint(curr.x, curr.y, curr.z, true);
 	return curr;
 }
-
-int Accelerometer::getX(){
-	threeD curr = getVal();
-	return curr.x;
-}
-
-int Accelerometer::getY(){
-	threeD curr = getVal();
-	return curr.y;
-}
-
-int Accelerometer::getZ(){
-	threeD curr = getVal();
-	return curr.z;
-}
-
-/*
-int Accelerometer::BinToInt(int msb, int lsb){
-  msb = msb << 8;
-  //Handles error reading at 0
-  if (msb == -256 && lsb <= 20)
-    msb = 0;
-  else if (msb == 0 && lsb >= 220)
-    msb = -256;
-  int value = msb;
-  value = value | lsb;
-  //sPrint(msb, lsb, value);
-  return value;
-}
-*/
 
 threeD Accelerometer::ByteRead6(int I2C_Address, int Reg_Address){
 	threeD result;
@@ -91,40 +60,4 @@ threeD Accelerometer::ByteRead6(int I2C_Address, int Reg_Address){
 		result.z = Wire.read() | (Wire.read() << 8);
 		return result;
 	}
-}
-
-int Accelerometer::MedianOfFive(int a, int b, int c, int d, int e)
-{
-    return b < a ? d < c ? b < d ? a < e ? a < d ? e < d ? e : d
-                                                 : c < a ? c : a
-                                         : e < d ? a < d ? a : d
-                                                 : c < e ? c : e
-                                 : c < e ? b < c ? a < c ? a : c
-                                                 : e < b ? e : b
-                                         : b < e ? a < e ? a : e
-                                                 : c < b ? c : b
-                         : b < c ? a < e ? a < c ? e < c ? e : c
-                                                 : d < a ? d : a
-                                         : e < c ? a < c ? a : c
-                                                 : d < e ? d : e
-                                 : d < e ? b < d ? a < d ? a : d
-                                                 : e < b ? e : b
-                                         : b < e ? a < e ? a : e
-                                                 : d < b ? d : b
-                 : d < c ? a < d ? b < e ? b < d ? e < d ? e : d
-                                                 : c < b ? c : b
-                                         : e < d ? b < d ? b : d
-                                                 : c < e ? c : e
-                                 : c < e ? a < c ? b < c ? b : c
-                                                 : e < a ? e : a
-                                         : a < e ? b < e ? b : e
-                                                 : c < a ? c : a
-                         : a < c ? b < e ? b < c ? e < c ? e : c
-                                                 : d < b ? d : b
-                                         : e < c ? b < c ? b : c
-                                                 : d < e ? d : e
-                                 : d < e ? a < d ? b < d ? b : d
-                                                 : e < a ? e : a
-                                         : a < e ? b < e ? b : e
-                                                 : d < a ? d : a;
 }

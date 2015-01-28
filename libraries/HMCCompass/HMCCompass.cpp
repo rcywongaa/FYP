@@ -1,21 +1,16 @@
 #include "HMCCompass.h"
 
 #define ALPHA 0.1
-/***** Private Methods *****/
 
-/***** Public Methods *****/
 Compass::Compass():I2CDevice(){
 	addr = 0x1E;
-	accel = Accelerometer();
 }
 
 Compass::Compass(uint8_t sdaPin, uint8_t sclPin):I2CDevice(sdaPin, sclPin){
 	addr = 0x1E;
-	accel = Accelerometer(sdaPin, sclPin);
 }
 
 void Compass::init(){
-	accel.init();
 	ByteWrite(addr, 0x00, 0x18);
 	ByteWrite(addr, 0x01, 0x20);
 	ByteWrite(addr, 0x02, 0x00);
@@ -26,21 +21,13 @@ void Compass::init(){
 }
 
 threeD Compass::getVal(){
-//http://forum.arduino.cc/index.php/topic,8573.0.html not work
-//http://www.timzaman.com/?p=1010 not work
-	threeD curr; // x = roll, y = pitch, z = yaw
-	threeD acc = accel.getVal();
 	threeD mag = ByteRead6(addr, 0x03);
 	mag.x = (1-ALPHA)*prev.x + ALPHA*mag.x;
 	mag.y = (1-ALPHA)*prev.y + ALPHA*mag.y;
 	mag.z = (1-ALPHA)*prev.z + ALPHA*mag.z;
 	prev = mag;
-//Taken from http://www.freescale.com/files/sensors/doc/app_note/AN4248.pdf
-	curr.x = atan2(-acc.y, -acc.z);
-	curr.y = atan(-acc.x / ((-acc.y)*sin(curr.x) + (-acc.z)*cos(curr.x)));
-	curr.z = atan2((-mag.z*sin(curr.x) - (-mag.y)*cos(curr.x)), (mag.x*cos(curr.y) + (-mag.y)*sin(curr.y)*sin(curr.x) + (-mag.z)*sin(curr.y)*cos(curr.x)));
-	//sPrint(curr.x * 180/PI, curr.y * 180/PI, curr.z * 180/PI, true);
-	return curr;
+
+	return mag;
 }
 
 float Compass::getRoll(){
