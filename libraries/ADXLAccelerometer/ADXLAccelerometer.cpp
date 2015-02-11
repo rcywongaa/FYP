@@ -1,5 +1,11 @@
 #include "ADXLAccelerometer.h"
 
+/*
++X: forwards (away from pins)
++Y: right
++Z: downwards (into the board)
+*/
+
 #define THRESH 1000
 #define ALPHA 0.1
 

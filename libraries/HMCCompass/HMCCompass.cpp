@@ -2,6 +2,12 @@
 
 #define ALPHA 0.1
 
+/*
++X: forward (away from pins)
++Y: left
++Z: upwards (out of board)
+*/
+
 Compass::Compass():I2CDevice(){
 	addr = 0x1E;
 }

@@ -1,7 +1,5 @@
 #include "common2.h"
 
-#define THRESH 0.1 * PI/180
-
 int BinToInt(int msb, int lsb){
   msb = msb << 8;
   int value = msb;
@@ -26,19 +24,19 @@ threeD calcAngles(threeD acc, threeD mag){
 //http://forum.arduino.cc/index.php/topic,8573.0.html not work
 //http://www.timzaman.com/?p=1010 not work
 	threeD rot;
-	
 	/* Version 1 */
-	rot.x = atan2(-acc.y, -acc.z); //roll
-	rot.y = atan(-acc.x / ((-acc.y)*sin(rot.x) + (-acc.z)*cos(rot.x))); //pitch
+	rot.x = atan2(acc.y, acc.z); //roll
+	rot.y = atan(acc.x / ((acc.y)*sin(rot.x) + (acc.z)*cos(rot.x))); //pitch
 	rot.z = atan2((-mag.z*sin(rot.x) - (-mag.y)*cos(rot.x)), (mag.x*cos(rot.y) + (-mag.y)*sin(rot.y)*sin(rot.x) + (-mag.z)*sin(rot.y)*cos(rot.x))); //yaw
-	
-	/* Version 2 */
-	//rot.x = 0;
-	//rot.y = atan(-acc.x / ((-acc.y)*sin(rot.x) + (-acc.z)*cos(rot.x)));
-	//rot.z = atan2((-mag.z*sin(rot.x) - (-mag.y)*cos(rot.x)), (mag.x*cos(rot.y) + (-mag.y)*sin(rot.y)*sin(rot.x) + (-mag.z)*sin(rot.y)*cos(rot.x)));
-	
-//sPrint(rot.x * 180/PI, rot.y * 180/PI, rot.z * 180/PI, true);
+	return rot;
+}
 
+threeD calcAnglesNoRoll(threeD acc, threeD mag){
+	/* Version 2 */
+	threeD rot;
+	rot.x = 0;
+	rot.y = atan2(acc.x, ((acc.y)*sin(rot.x) + (acc.z)*cos(rot.x))); //pitch
+	rot.z = atan2((-mag.z*sin(rot.x) - (-mag.y)*cos(rot.x)), (mag.x*cos(rot.y) + (-mag.y)*sin(rot.y)*sin(rot.x) + (-mag.z)*sin(rot.y)*cos(rot.x))); //yaw
 	return rot;
 }
 

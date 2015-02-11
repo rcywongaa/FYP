@@ -14,6 +14,7 @@ struct threeD {
 int BinToInt(int, int);
 void sPrint(float, float, float, bool);
 threeD calcAngles(threeD, threeD);
+threeD calcAnglesNoRoll(threeD, threeD);
 int MedianOfFive(int, int, int, int, int);
 
 #endif
