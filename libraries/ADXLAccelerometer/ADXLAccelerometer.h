@@ -6,14 +6,21 @@
 
 class Accelerometer : public I2CDevice{
 	private:
-		threeD prev;
-		threeD ByteRead6(int, int);
+		floatVec3 prev;
+		floatVec3 raw;
+		floatVec3 curr;
+		floatVec3 ByteRead6(int, int);
 
 	public:
 		Accelerometer();
 		Accelerometer(uint8_t, uint8_t);
 		void init();
-		threeD getVal();
+		void update();
+		floatVec3 getFiltered();
+		floatVec3 getRaw();
+		
+		/************ Deprecated ***************/
+		floatVec3 getVal();
 };
 
 #endif

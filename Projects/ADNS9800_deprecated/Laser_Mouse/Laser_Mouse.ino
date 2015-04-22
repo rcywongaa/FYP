@@ -1,8 +1,8 @@
 #include <SPI.h>
 #include <avr/pgmspace.h>
-#include <LiquidCrystal.h>
+//#include <LiquidCrystal.h>
 
-LiquidCrystal lcd(9, 8, 7, 6, 5, 4);
+//LiquidCrystal lcd(9, 8, 7, 6, 5, 4);
 
 
 // Registers
@@ -66,8 +66,8 @@ extern prog_uchar firmware_data[];
 void setup() {
   Serial.begin(9600);
   
-  lcd.begin(20, 4);
-  lcd.clear();
+//  lcd.begin(20, 4);
+//  lcd.clear();
   
   pinMode (ncs, OUTPUT);
   
@@ -150,6 +150,18 @@ void adns_upload_firmware(){
     delayMicroseconds(15);
   }
   adns_com_end();
+  
+  	  // read SROM_ID			
+	  byte srom_id = adns_read_reg(REG_SROM_ID);			
+	  Serial.print("SROM ID = ");			
+	  Serial.println(srom_id, HEX);			
+	  			
+	  // compare SROM_ID to what is expected			
+	  if(srom_id != 0){			
+	    Serial.println("Firmware uploaded.");			
+	  } else {			
+	    Serial.println("Firmware upload FAILED ><");
+}
   }
 
 
@@ -229,10 +241,10 @@ int convTwosComp(int b){
   int tdistance = 0;
   void loop() {
   if(movementflag){
-    lcd.clear();
+//    lcd.clear();
     tdistance = tdistance + convTwosComp(xydat[0]);
     Serial.println("Distance = " + String(tdistance));
-    lcd.print(String(tdistance));
+//    lcd.print(String(tdistance));
     movementflag=0;
     delay(3);
     }

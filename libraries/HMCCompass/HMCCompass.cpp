@@ -1,6 +1,6 @@
 #include "HMCCompass.h"
 
-#define ALPHA 0.1
+#define ALPHA 0.1 //0.1
 
 /*
 +X: forward (away from pins)
@@ -26,8 +26,26 @@ void Compass::init(){
 	delay(50);
 }
 
-threeD Compass::getVal(){
-	threeD mag = ByteRead6(addr, 0x03);
+void Compass::update(){
+	raw = ByteRead6(addr, 0x03);
+}
+
+floatVec3 Compass::getRaw(){
+	return raw;
+}
+
+floatVec3 Compass::getFiltered(){
+	curr = raw;
+	curr.x = (1-ALPHA)*prev.x + ALPHA*curr.x;
+	curr.y = (1-ALPHA)*prev.y + ALPHA*curr.y;
+	curr.z = (1-ALPHA)*prev.z + ALPHA*curr.z;
+	prev = curr;
+	return curr;
+}
+
+/*************** Deprecated ***************/
+floatVec3 Compass::getVal(){
+	floatVec3 mag = ByteRead6(addr, 0x03);
 	mag.x = (1-ALPHA)*prev.x + ALPHA*mag.x;
 	mag.y = (1-ALPHA)*prev.y + ALPHA*mag.y;
 	mag.z = (1-ALPHA)*prev.z + ALPHA*mag.z;
@@ -36,20 +54,8 @@ threeD Compass::getVal(){
 	return mag;
 }
 
-float Compass::getRoll(){
-	return getVal().x;
-}
-
-float Compass::getPitch(){
-	return getVal().y;
-}
-
-float Compass::getYaw(){
-	return getVal().z;
-}
-
-threeD Compass::ByteRead6(int I2C_Address, int Reg_Address){
-	threeD result;
+floatVec3 Compass::ByteRead6(int I2C_Address, int Reg_Address){
+	floatVec3 result;
 	if (isCustom){
 		i2c.beginTransmission(I2C_Address);
 		i2c.send(byte(Reg_Address));

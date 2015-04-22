@@ -1,12 +1,15 @@
 #include <Wire.h>
+#include <SPI.h>
 #include "common2.h"
 #include "SoftI2CMaster.h"
 #include "I2CDevice.h"
 #include "ADXLAccelerometer.h"
 #include "HMCCompass.h"
+#include "ADNS9800.h"
 
-#define BAUDRATE 14400
-#define SENSORCOUNT 5
+#define BAUDRATE 9600 //Recommended 19200
+#define SENSORNUMBER 5 //The sensor to monitor (0 - 5)
+
 #define SCL 2
 #define SDA1 3
 #define ROLLTHRESH1 65 * PI / 180
@@ -14,41 +17,41 @@
 #define PITCHTHRESH 75 * PI / 180
 //Schmitt Trigger thresholds
 //Default: A4 SDA, A5 SCL
-static Compass compass[SENSORCOUNT];
-static Accelerometer accel[SENSORCOUNT];
+static Compass compass;
+static Accelerometer accel;
 static boolean hasRoll = false;
 
 void setup(){
-  Serial.begin(14400);//Recommended 19200
+  Serial.begin(BAUDRATE);
   Wire.begin();
-  for (int i = 0; i < SENSORCOUNT; i++){
-    accel[i] = Accelerometer(SDA1 + i, SCL);
-    accel[i].init();
-    compass[i] = Compass(SDA1 + i, SCL);
-    compass[i].init();
-  }
+  accel = Accelerometer(SDA1 + SENSORNUMBER, SCL);
+  accel.init();
+  compass = Compass(SDA1 + SENSORNUMBER, SCL);
+  compass.init();
   hasRoll = false;
 }
 
 void loop(){
   float x;
   float y;
-  for (int i = 0; i < SENSORCOUNT; i++){
-    threeD acc = accel[i].getVal();
-    threeD mag = compass[i].getVal();
-    threeD rot = calcAngles(acc, mag);
-    if (abs(rot.x) > ROLLTHRESH1 && hasRoll == false && abs(rot.y) < PITCHTHRESH)
+  
+  sIntVec3 angle;
+  accel.update();
+  compass.update();
+  floatVec3 acc = accel.getFiltered();
+  floatVec3 mag = compass.getFiltered();
+  //Use palm angles to determine hasRoll
+  if (SENSORNUMBER == 0){
+    floatVec3 pRot = calcAngles(acc, mag);
+    if (abs(pRot.x) > ROLLTHRESH1 && hasRoll == false && abs(pRot.y) < PITCHTHRESH)
       hasRoll = true;
-    if (abs(rot.x) < ROLLTHRESH2 && hasRoll == true){
+    if ((abs(pRot.x) < ROLLTHRESH2 && hasRoll == true) || abs(pRot.y) > PITCHTHRESH){
       hasRoll = false;
     }
-    if (!hasRoll)  rot = calcAnglesNoRoll(acc, mag);
-    //rot = calcAngles(acc, mag);
-    //sPrint(acc.x, acc.y, acc.z, false);
-    //sPrint(mag.x, mag.y, mag.z, false);
-    //sPrint(rot.x, rot.y, rot.z, true);
-    if (i == SENSORCOUNT - 1)
-      sPrint(rot.x, rot.y, rot.z, true);
-    else sPrint(rot.x, rot.y, rot.z, false);
   }
+  if (hasRoll) angle = radToDeg(calcAngles(acc, mag));
+  else angle = radToDeg(calcAnglesNoRoll(acc, mag));
+  sPrint(angle.x, angle.y, angle.z, false);
+  sPrint(acc.x, acc.y, acc.z, false);
+  sPrint(mag.x, mag.y, mag.z, true);
 }

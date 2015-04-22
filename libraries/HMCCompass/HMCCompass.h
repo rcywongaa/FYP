@@ -8,17 +8,21 @@
 
 class Compass : public I2CDevice {
 	private:
-		threeD ByteRead6(int, int);
-		threeD prev;
+		floatVec3 ByteRead6(int, int);
+		floatVec3 prev;
+		floatVec3 curr;
+		floatVec3 raw;
 
 	public:
 		Compass();
 		Compass(uint8_t, uint8_t);
 		void init();
-		threeD getVal();
-		float getRoll();
-		float getPitch();
-		float getYaw();
+		void update();
+		floatVec3 getRaw();
+		floatVec3 getFiltered();
+		
+		/************** Deprecated *************/
+		floatVec3 getVal();
 };
 
 #endif

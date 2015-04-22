@@ -6,13 +6,13 @@
 
 class Gyroscope : public I2CDevice {
 	private:
-		threeD ByteRead6(int, int);
+		floatVec3 ByteRead6(int, int);
 		
 	public:
 		Gyroscope();
 		Gyroscope(uint8_t, uint8_t);
 		void init();
-		threeD getVal();
+		floatVec3 getVal();
 };
 
 #endif

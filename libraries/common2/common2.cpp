@@ -7,7 +7,49 @@ int BinToInt(int msb, int lsb){
   return value;
 }
 
-void sPrint(float a, float b, float c, bool newline){
+void sPrint(floatVec3 fData[], int fSize, bool bData[], int bSize, sIntVec2 mData){
+	for (int i = 0; i < fSize; i++){
+		Serial.print(fData[i].x, 5);
+		Serial.print(",");
+		Serial.print(fData[i].y, 5);
+		Serial.print(",");
+		Serial.print(fData[i].z, 5);
+		Serial.print(",");
+	}
+	
+	for (int i = 0; i < bSize; i++){
+		Serial.print(bData[i]);
+		Serial.print(",");
+	}
+	
+	Serial.print(mData.x);
+	Serial.print(",");
+	Serial.print(mData.y);
+	Serial.println();
+}
+
+void sPrint(sIntVec3 fData[], int fSize, bool bData[], int bSize, sIntVec2 mData){
+	for (int i = 0; i < fSize; i++){
+		Serial.print(fData[i].x);
+		Serial.print(",");
+		Serial.print(fData[i].y);
+		Serial.print(",");
+		Serial.print(fData[i].z);
+		Serial.print(",");
+	}
+	
+	for (int i = 0; i < bSize; i++){
+		Serial.print(bData[i]);
+		Serial.print(",");
+	}
+	
+	Serial.print(mData.x);
+	Serial.print(",");
+	Serial.print(mData.y);
+	Serial.println();
+}
+
+void sPrintI(int a, int b, int c, bool newline){
 	Serial.print(a);
 	Serial.print(",");
 	Serial.print(b);
@@ -19,11 +61,23 @@ void sPrint(float a, float b, float c, bool newline){
 		Serial.print(",");
 }
 
-threeD calcAngles(threeD acc, threeD mag){
+void sPrintF(float a, float b, float c, bool newline){
+	Serial.print(a, 5);
+	Serial.print(",");
+	Serial.print(b, 5);
+	Serial.print(",");
+	Serial.print(c, 5);
+	if (newline)
+		Serial.println();
+	else
+		Serial.print(",");
+}
+
+floatVec3 calcAngles(floatVec3 acc, floatVec3 mag){
 //Taken from http://www.freescale.com/files/sensors/doc/app_note/AN4248.pdf
 //http://forum.arduino.cc/index.php/topic,8573.0.html not work
 //http://www.timzaman.com/?p=1010 not work
-	threeD rot;
+	floatVec3 rot;
 	/* Version 1 */
 	rot.x = atan2(acc.y, acc.z); //roll
 	rot.y = atan(acc.x / ((acc.y)*sin(rot.x) + (acc.z)*cos(rot.x))); //pitch
@@ -31,13 +85,25 @@ threeD calcAngles(threeD acc, threeD mag){
 	return rot;
 }
 
-threeD calcAnglesNoRoll(threeD acc, threeD mag){
+floatVec3 calcAnglesNoRoll(floatVec3 acc, floatVec3 mag){
 	/* Version 2 */
-	threeD rot;
+	floatVec3 rot;
 	rot.x = 0;
 	rot.y = atan2(acc.x, ((acc.y)*sin(rot.x) + (acc.z)*cos(rot.x))); //pitch
 	rot.z = atan2((-mag.z*sin(rot.x) - (-mag.y)*cos(rot.x)), (mag.x*cos(rot.y) + (-mag.y)*sin(rot.y)*sin(rot.x) + (-mag.z)*sin(rot.y)*cos(rot.x))); //yaw
 	return rot;
+}
+
+float getEnergySq(floatVec3 acc){
+	return acc.x * acc.x + acc.y * acc.y + acc.z + acc.z;
+}
+
+sIntVec3 radToDeg(floatVec3 rad){
+	sIntVec3 result;
+	result.x = rad.x / PI * 180;
+	result.y = rad.y / PI * 180;
+	result.z = rad.z / PI * 180;
+	return result;
 }
 
 int MedianOfFive(int a, int b, int c, int d, int e)

@@ -12,7 +12,7 @@ class I2CDevice {
 		I2CDevice(uint8_t, uint8_t);
 		void ByteWrite(int, int, int);
 		int ByteRead(int, int);
-		//virtual threeD ByteRead6(int, int); //Different for each device!
+		//virtual floatVec3 ByteRead6(int, int); //Different for each device!
 };
 
 #endif

@@ -16,12 +16,12 @@ void Gyroscope::init(){
 	ByteWrite(addr, 0x24, 0x00);
 }
 
-threeD Gyroscope::getVal(){
+floatVec3 Gyroscope::getVal(){
 	return ByteRead6(addr, 0x28);
 }
 
-threeD Gyroscope::ByteRead6(int I2C_Address, int Reg_Address){
-	threeD result;
+floatVec3 Gyroscope::ByteRead6(int I2C_Address, int Reg_Address){
+	floatVec3 result;
 	if (isCustom){
 		i2c.beginTransmission(I2C_Address);
 		i2c.send(byte(Reg_Address));

@@ -7,7 +7,7 @@
 */
 
 #define THRESH 1000
-#define ALPHA 0.1
+#define ALPHA 0.1 //0.1
 
 Accelerometer::Accelerometer():I2CDevice(){
 	addr = 0x53;
@@ -21,15 +21,33 @@ void Accelerometer::init(){
 	ByteWrite(addr, 0x2C, 0x0F);
 	ByteWrite(addr, 0x31, 0x00);
 	ByteWrite(addr, 0x2D, 0x28);
-	ByteWrite(addr, 0x38, 0x80);
+	ByteWrite(addr, 0x38, 0x00);
 	prev.x = 0;
 	prev.y = 0;
 	prev.z = 0;
 	delay(50);
 }
 
-threeD Accelerometer::getVal(){
-	threeD curr = ByteRead6(addr, 0x32);
+void Accelerometer::update(){
+	raw = ByteRead6(addr, 0x32);
+}
+
+floatVec3 Accelerometer::getRaw(){
+	return raw;
+}
+
+floatVec3 Accelerometer::getFiltered(){
+	curr = raw;
+	curr.x = (1-ALPHA)*prev.x + ALPHA*curr.x;
+	curr.y = (1-ALPHA)*prev.y + ALPHA*curr.y;
+	curr.z = (1-ALPHA)*prev.z + ALPHA*curr.z;
+	prev = curr;
+	return curr;
+}
+
+/************* Deprecated *****************/
+floatVec3 Accelerometer::getVal(){
+	floatVec3 curr = ByteRead6(addr, 0x32);
 	if (curr.x > THRESH || curr.x < -THRESH)
 		curr.x = prev.x;
 	if (curr.y > THRESH || curr.y < -THRESH)
@@ -44,8 +62,8 @@ threeD Accelerometer::getVal(){
 	return curr;
 }
 
-threeD Accelerometer::ByteRead6(int I2C_Address, int Reg_Address){
-	threeD result;
+floatVec3 Accelerometer::ByteRead6(int I2C_Address, int Reg_Address){
+	floatVec3 result;
 	if (isCustom){
 		i2c.beginTransmission(I2C_Address);
 		i2c.send(byte(Reg_Address));
