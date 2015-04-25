@@ -16,16 +16,17 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-   if (Genotronex.available()){
-BluetoothData=Genotronex.read();
-   if(BluetoothData=='1'){   // if number 1 pressed ....
-   digitalWrite(ledpin,1);
-   Genotronex.println("LED  On D13 ON ! ");
-   }
-  if (BluetoothData=='0'){// if number 0 pressed ....
-  digitalWrite(ledpin,0);
-   Genotronex.println("LED  On D13 Off ! ");
+  if (Genotronex.available()){
+    BluetoothData=Genotronex.read();
+    if(BluetoothData=='1'){   // if number 1 pressed ....
+      digitalWrite(ledpin,1);
+      Genotronex.println("LED  On D13 ON ! ");
+    }
+    if (BluetoothData=='0'){// if number 0 pressed ....
+      digitalWrite(ledpin,0);
+      Genotronex.println("LED  On D13 Off ! ");
+    }
   }
+  delay(100);// prepare for next data ...
 }
-delay(100);// prepare for next data ...
-}
+

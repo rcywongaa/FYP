@@ -6,7 +6,8 @@
 #include "HMCCompass.h"
 #include "L3GGyroscope.h"
 
-#define SENSORCOUNT 3
+//Sample Rate:
+#define SENSORCOUNT 1
 //Digital pins, not analog pins
 #define SCL 2
 #define SDA1 3
@@ -16,7 +17,7 @@ static Accelerometer accel[SENSORCOUNT];
 static Gyroscope gyro[SENSORCOUNT];
 
 void setup(){
-  Serial.begin(14400);//Recommended 19200
+  Serial.begin(230400);//Recommended 19200
   Wire.begin();
   for (int i = 0; i < SENSORCOUNT; i++){
     compass[i] = Compass(SDA1 + i, SCL);
@@ -30,13 +31,13 @@ void setup(){
 
 void loop(){
   for (int i = 0; i < SENSORCOUNT; i++){
-    threeD acc = accel[i].getVal();
-    threeD mag = compass[i].getVal();
-    threeD gyr = gyro[i].getVal();
-    sPrint(acc.x, acc.y, acc.z, false);
-    sPrint(mag.x, mag.y, mag.z, false);
+    floatVec3 acc = accel[i].getVal();
+    floatVec3 mag = compass[i].getVal();
+    floatVec3 gyr = gyro[i].getVal();
+    sPrintF(acc.x, acc.y, acc.z, false);
+    sPrintF(mag.x, mag.y, mag.z, false);
     if (i == SENSORCOUNT - 1)
-      sPrint(gyr.x, gyr.y, gyr.z, true);
-    else sPrint(gyr.x, gyr.y, gyr.z, false);
+      sPrintF(gyr.x, gyr.y, gyr.z, true);
+    else sPrintF(gyr.x, gyr.y, gyr.z, false);
   }
 }

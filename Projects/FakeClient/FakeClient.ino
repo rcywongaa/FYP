@@ -1,11 +1,11 @@
 #include "common2.h"
 
 void setup(){
-  Serial.begin(19200);
+  Serial.begin(230400);
 }
 
 void loop(){
-  for (float i = -PI; i < PI; i+=0.001){
+  for (float i = -PI; i < PI; i+=0.01){
     sPrintF(0, 0, 0, false);
     sPrintF(0, 0, 0, false);
     sPrintF(i, 0, 0, false);

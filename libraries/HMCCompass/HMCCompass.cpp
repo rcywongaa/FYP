@@ -43,17 +43,6 @@ floatVec3 Compass::getFiltered(){
 	return curr;
 }
 
-/*************** Deprecated ***************/
-floatVec3 Compass::getVal(){
-	floatVec3 mag = ByteRead6(addr, 0x03);
-	mag.x = (1-ALPHA)*prev.x + ALPHA*mag.x;
-	mag.y = (1-ALPHA)*prev.y + ALPHA*mag.y;
-	mag.z = (1-ALPHA)*prev.z + ALPHA*mag.z;
-	prev = mag;
-
-	return mag;
-}
-
 floatVec3 Compass::ByteRead6(int I2C_Address, int Reg_Address){
 	floatVec3 result;
 	if (isCustom){
@@ -77,3 +66,15 @@ floatVec3 Compass::ByteRead6(int I2C_Address, int Reg_Address){
 		return result;
 	}
 }
+	
+/*************** Deprecated ***************/
+floatVec3 Compass::getVal(){
+	floatVec3 mag = ByteRead6(addr, 0x03);
+	mag.x = (1-ALPHA)*prev.x + ALPHA*mag.x;
+	mag.y = (1-ALPHA)*prev.y + ALPHA*mag.y;
+	mag.z = (1-ALPHA)*prev.z + ALPHA*mag.z;
+	prev = mag;
+
+	return mag;
+}
+/*****************************************/

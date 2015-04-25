@@ -45,23 +45,6 @@ floatVec3 Accelerometer::getFiltered(){
 	return curr;
 }
 
-/************* Deprecated *****************/
-floatVec3 Accelerometer::getVal(){
-	floatVec3 curr = ByteRead6(addr, 0x32);
-	if (curr.x > THRESH || curr.x < -THRESH)
-		curr.x = prev.x;
-	if (curr.y > THRESH || curr.y < -THRESH)
-		curr.y = prev.y;
-	if (curr.z > THRESH || curr.y < -THRESH)
-		curr.z = prev.z;
-	curr.x = (1-ALPHA)*prev.x + ALPHA*curr.x;
-	curr.y = (1-ALPHA)*prev.y + ALPHA*curr.y;
-	curr.z = (1-ALPHA)*prev.z + ALPHA*curr.z;
-	prev = curr;
-	//sPrint(curr.x, curr.y, curr.z, true);
-	return curr;
-}
-
 floatVec3 Accelerometer::ByteRead6(int I2C_Address, int Reg_Address){
 	floatVec3 result;
 	if (isCustom){
@@ -84,4 +67,22 @@ floatVec3 Accelerometer::ByteRead6(int I2C_Address, int Reg_Address){
 		result.z = Wire.read() | (Wire.read() << 8);
 		return result;
 	}
+}
+
+/************* Deprecated *****************/
+floatVec3 Accelerometer::getVal(){
+	floatVec3 curr = ByteRead6(addr, 0x32);
+	if (curr.x > THRESH || curr.x < -THRESH)
+		curr.x = prev.x;
+	if (curr.y > THRESH || curr.y < -THRESH)
+		curr.y = prev.y;
+	if (curr.z > THRESH || curr.y < -THRESH)
+		curr.z = prev.z;
+	curr.x = (1-ALPHA)*prev.x + ALPHA*curr.x;
+	curr.y = (1-ALPHA)*prev.y + ALPHA*curr.y;
+	curr.z = (1-ALPHA)*prev.z + ALPHA*curr.z;
+	prev = curr;
+	//sPrint(curr.x, curr.y, curr.z, true);
+	return curr;
+/******************************************/
 }
