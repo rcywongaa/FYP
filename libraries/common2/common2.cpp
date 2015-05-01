@@ -1,12 +1,5 @@
 #include "common2.h"
 
-int BinToInt(int msb, int lsb){
-  msb = msb << 8;
-  int value = msb;
-  value = value | lsb;
-  return value;
-}
-
 void sPrint(floatVec3 fData[], int fSize, bool bData[], int bSize, sIntVec2 mData){
 	for (int i = 0; i < fSize; i++){
 		Serial.print(fData[i].x, 5);
@@ -98,11 +91,19 @@ float getEnergySq(floatVec3 acc){
 	return acc.x * acc.x + acc.y * acc.y + acc.z + acc.z;
 }
 
-sIntVec3 radToDeg(floatVec3 rad){
-	sIntVec3 result;
-	result.x = rad.x / PI * 180;
-	result.y = rad.y / PI * 180;
-	result.z = rad.z / PI * 180;
+floatVec3 degToRad(floatVec3 deg){
+	floatVec3 result;
+	result.x = deg.x * PI / 180.0;
+	result.y = deg.y * PI / 180.0;
+	result.z = deg.z * PI / 180.0;
+	return result;
+}
+
+floatVec3 radToDeg(floatVec3 rad){
+	floatVec3 result;
+	result.x = rad.x / PI * 180.0;
+	result.y = rad.y / PI * 180.0;
+	result.z = rad.z / PI * 180.0;
 	return result;
 }
 

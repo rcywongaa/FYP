@@ -4,6 +4,12 @@
 #include "common2.h"
 #include "I2CDevice.h"
 
+/*
++X: forwards (away from pins)
++Y: right
++Z: downwards (into the board)
+*/
+
 class Accelerometer : public I2CDevice{
 	private:
 		floatVec3 prev;

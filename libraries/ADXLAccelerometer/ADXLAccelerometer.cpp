@@ -7,7 +7,7 @@
 */
 
 #define THRESH 1000
-#define ALPHA 0.1 //0.1
+#define ALPHA 1 //0.1
 
 Accelerometer::Accelerometer():I2CDevice(){
 	addr = 0x53;

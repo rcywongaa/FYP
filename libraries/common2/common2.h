@@ -24,15 +24,21 @@ struct sIntVec3{
 	short int z;
 };
 	
-int BinToInt(int, int);
 void sPrint(floatVec3[], int, bool[], int, sIntVec2);
 void sPrint(sIntVec3[], int, bool[], int, sIntVec2);
 void sPrintF(float, float, float, bool);
 void sPrintI(int, int, int, bool);
+/*
+Right Hand Grip (Thumb)
++X: Forward (Away)
++Y: Right
++Z: Downwards
+*/
 floatVec3 calcAngles(floatVec3, floatVec3);
 floatVec3 calcAnglesNoRoll(floatVec3, floatVec3);
 int MedianOfFive(int, int, int, int, int);
 float getEnergySq(floatVec3);
-sIntVec3 radToDeg(floatVec3);
+floatVec3 radToDeg(floatVec3);
+floatVec3 degToRad(floatVec3);
 
 #endif

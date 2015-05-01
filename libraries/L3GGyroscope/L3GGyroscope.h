@@ -4,6 +4,12 @@
 #include "common2.h"
 #include "I2CDevice.h"
 
+/*
+Right Hand
+X: Forward (away from pins)
+Y: Left
+Z: Upwards
+*/
 class Gyroscope : public I2CDevice {
 	private:
 		floatVec3 ByteRead6(int, int);

@@ -7,8 +7,8 @@
 #include "HMCCompass.h"
 #include "ADNS9800.h"
 
-#define BAUDRATE 9600 //Recommended 19200
-#define SENSORNUMBER 5 //The sensor to monitor (0 - 5)
+#define BAUDRATE 230400 //Recommended 230400
+#define SENSORNUMBER 0 //The sensor to monitor (0 - 5)
 
 #define SCL 2
 #define SDA1 3
@@ -35,7 +35,7 @@ void loop(){
   float x;
   float y;
   
-  sIntVec3 angle;
+  floatVec3 angle;
   accel.update();
   compass.update();
   floatVec3 acc = accel.getFiltered();
@@ -49,9 +49,9 @@ void loop(){
       hasRoll = false;
     }
   }
-  if (hasRoll) angle = radToDeg(calcAngles(acc, mag));
-  else angle = radToDeg(calcAnglesNoRoll(acc, mag));
-  sPrint(angle.x, angle.y, angle.z, false);
-  sPrint(acc.x, acc.y, acc.z, false);
-  sPrint(mag.x, mag.y, mag.z, true);
+  if (hasRoll) angle = calcAngles(acc, mag);
+  else angle = calcAnglesNoRoll(acc, mag);
+  sPrintF(angle.x, angle.y, angle.z, false);
+  sPrintF(acc.x, acc.y, acc.z, false);
+  sPrintF(mag.x, mag.y, mag.z, true);
 }

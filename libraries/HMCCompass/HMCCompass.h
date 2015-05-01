@@ -4,7 +4,12 @@
 #include "common2.h"
 #include "ADXLAccelerometer.h"
 #include "I2CDevice.h"
-//#include "Comp6DOF_n0m1.h"
+
+/*
++X: forward (away from pins)
++Y: left
++Z: upwards (out of board)
+*/
 
 class Compass : public I2CDevice {
 	private:

@@ -15,9 +15,13 @@
 static Compass compass[SENSORCOUNT];
 static Accelerometer accel[SENSORCOUNT];
 static Gyroscope gyro[SENSORCOUNT];
+static long time;
+static float dt;
+static floatVec3 angles;
 
 void setup(){
   Serial.begin(230400);//Recommended 19200
+  Wire.begin();
   for (int i = 0; i < SENSORCOUNT; i++){
     compass[i] = Compass(SDA1 + i, SCL);
     compass[i].init();
@@ -26,17 +30,22 @@ void setup(){
     gyro[i] = Gyroscope(SDA1 + i, SCL);
     gyro[i].init();
   }
+  angles.x = 0.0;
+  angles.y = 0.0;
+  angles.z = 0.0;
+  time = micros();
 }
 
 void loop(){
-  for (int i = 0; i < SENSORCOUNT; i++){
-    floatVec3 acc = accel[i].getVal();
-    floatVec3 mag = compass[i].getVal();
-    floatVec3 gyr = gyro[i].getVal();
-    sPrintF(acc.x, acc.y, acc.z, false);
-    sPrintF(mag.x, mag.y, mag.z, false);
-    if (i == SENSORCOUNT - 1)
-      sPrintF(gyr.x, gyr.y, gyr.z, true);
-    else sPrintF(gyr.x, gyr.y, gyr.z, false);
+  if (dt > 0){
+    gyro[0].update();
+    floatVec3 rot = gyro[0].getRaw();
+    angles.x += rot.x * dt;
+    angles.y += rot.y * dt;
+    angles.z += rot.z * dt;
+    sPrintF(angles.x, angles.y, angles.z, true);
   }
+  long curr = micros();
+  dt = (float)(curr - time) / 1000000.0;
+  time = curr;
 }

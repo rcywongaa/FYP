@@ -1,6 +1,6 @@
 #include "HMCCompass.h"
 
-#define ALPHA 0.1 //0.1
+#define ALPHA 1 //0.1
 
 /*
 +X: forward (away from pins)

@@ -19,7 +19,7 @@
 #include <util/delay.h>
 #include <string.h>
 
-#define  i2cbitdelay 10 //50
+#define  i2cbitdelay 1 //50
 
 #define  I2C_ACK  1 
 #define  I2C_NAK  0

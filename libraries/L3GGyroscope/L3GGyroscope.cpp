@@ -15,7 +15,7 @@ void Gyroscope::init(){
 	ByteWrite(addr, 0x21, 0x00);
 	ByteWrite(addr, 0x22, 0x00);
 	ByteWrite(addr, 0x23, 0x10);
-	ByteWrite(addr, 0x24, 0x02);
+	ByteWrite(addr, 0x24, 0x00);
 }
 
 void Gyroscope::update(){
@@ -45,11 +45,6 @@ floatVec3 Gyroscope::ByteRead6(int I2C_Address, int Reg_Address){
 		result.x = i2c.receive(1) | (i2c.receive(1) << 8);
 		result.y = i2c.receive(1) | (i2c.receive(1) << 8);
 		result.z = i2c.receive(1) | (i2c.receive(0) << 8);
-		//Convert results to degrees per second
-		result.x *= 17.5/1000;
-		result.y *= 17.5/1000;
-		result.z *= 17.5/1000;
-		return result;
 	}
 	else {
 		Wire.beginTransmission(I2C_Address);
@@ -59,8 +54,13 @@ floatVec3 Gyroscope::ByteRead6(int I2C_Address, int Reg_Address){
 		result.x = Wire.read() | (Wire.read() << 8);
 		result.y = Wire.read() | (Wire.read() << 8);
 		result.z = Wire.read() | (Wire.read() << 8);
-		return result;
 	}
+	//Convert results to radians per second
+	result.x *= 17.5/1000.0;
+	result.y *= 17.5/1000.0;
+	result.z *= 17.5/1000.0;
+	result = degToRad(result);
+	return result;
 }
 
 /***************** Deprecated *****************/

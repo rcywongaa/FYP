@@ -24,6 +24,7 @@ int yDistance
 #include "ADXLAccelerometer.h"
 #include "HMCCompass.h"
 #include "L3GGyroscope.h"
+#include "CompFilter.h"
 
 // SPI and misc pins for the ADNS
 #include <SPI.h>
@@ -38,18 +39,15 @@ int yDistance
 #define SCL 2
 #define SDA1 3
 
-//Complementary Filter Constants
-#define DWEIGHT 0.9 //Weight of gyroscope
-
 //Schmitt Trigger Constants
 #define KEYBOARDMODE 1
 #define MOUSEMODE 2
-#define ROLLTHRESH1 65 * PI / 180
-#define ROLLTHRESH2 25 * PI / 180
-#define PITCHTHRESH 75 * PI / 180
+#define ROLLTHRESH1 65.0 * PI / 180.0
+#define ROLLTHRESH2 25.0 * PI / 180.0
+#define PITCHTHRESH 75.0 * PI / 180.0
 
 //Tap Detection Constants
-#define TAPTHRESH 180
+#define TAPTHRESH 250
 #define TIMEOUT 6 //max 1 tap per 0.25 sec
 #define WINDOWSIZE 4
 
@@ -63,8 +61,11 @@ static floatVec3 mag;
 static floatVec3 gyr;
 static floatVec3 angles[SENSORCOUNT];
 static OpticalSensor optic;
+
+static CompFilter filter[SENSORCOUNT];
 static long time;
 static float dt;
+
 static int mode;
 
 //Tap Detection Variables
@@ -82,21 +83,24 @@ void setup(){
     compass[i].init();
     gyroscope[i] = Gyroscope(SDA1 + i, SCL);
     gyroscope[i].init();
+    filter[i] = CompFilter();
   }
-  hasRoll = false;
+  hasRoll = true;
   
   optic = OpticalSensor();
   optic.init();
-  time = millis();
+  time = micros();
   dt = 0.0;
   mode = MOUSEMODE;
 }
 
 void loop(){
-  if (Serial.available())
-    mode = Serial.read();
-  dt = (float)(millis() - time)/1000.0;
-  time = millis();
+  if (Serial.available()) mode = Serial.read();
+  
+  long curr = micros();
+  dt = (float)(curr - time)/1000000.0;
+  time = curr;
+  
   for (int i = 0; i < SENSORCOUNT; i++){
     accel[i].update();
     compass[i].update();
@@ -108,21 +112,20 @@ void loop(){
       //if (abs(pRot.x) > ROLLTHRESH1 && hasRoll == false && abs(pRot.y) < PITCHTHRESH)
       if (mode == MOUSEMODE && abs(pRot.y) < PITCHTHRESH)
         hasRoll = true;
-      //if ((abs(pRot.x) < ROLLTHRESH2 && hasRoll == true) || abs(pRot.y) > PITCHTHRESH)
-      if (mode == KEYBOARDMODE || abs(pRot.y) > PITCHTHRESH)
+      else
         hasRoll = false;
+      //if ((abs(pRot.x) < ROLLTHRESH2 && hasRoll == true) || abs(pRot.y) > PITCHTHRESH)
     }
-    floatVec3 sAngles;
-    if (hasRoll) angles[i] = calcAngles(acc, mag);
-    else angles[i] = calcAnglesNoRoll(acc, mag);
+    //Calculate angles of other fingers
+    floatVec3 estAngles;
+    if (hasRoll) estAngles = calcAngles(acc, mag);
+    else estAngles = calcAnglesNoRoll(acc, mag);
     
     /****************** COMPLEMENTARY FILTER ***************/
-    //gyroscope[i].update();
-    //gyr = gyroscope[i].getFiltered();
-    //angles[i].x = DWEIGHT * (angles[i].x + gyr.x*dt) + (1-DWEIGHT) * (sAngles.x);
-    //angles[i].y = DWEIGHT * (angles[i].y + gyr.y*dt) + (1-DWEIGHT) * (sAngles.y);
-    //angles[i].z = DWEIGHT * (angles[i].z + gyr.z*dt) + (1-DWEIGHT) * (sAngles.z);
-        
+    gyroscope[i].update();
+    gyr = gyroscope[i].getRaw();
+    angles[i] = filter[i].evaluate(estAngles, gyr, dt);
+    //angles[i] = estAngles;
     /**************** TAP DETECTION ********************/
     if (i == 0) //Ignore tap detection for palm
       continue;
