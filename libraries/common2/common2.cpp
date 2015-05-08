@@ -68,8 +68,6 @@ void sPrintF(float a, float b, float c, bool newline){
 
 floatVec3 calcAngles(floatVec3 acc, floatVec3 mag){
 //Taken from http://www.freescale.com/files/sensors/doc/app_note/AN4248.pdf
-//http://forum.arduino.cc/index.php/topic,8573.0.html not work
-//http://www.timzaman.com/?p=1010 not work
 	floatVec3 rot;
 	/* Version 1 */
 	rot.x = atan2(acc.y, acc.z); //roll

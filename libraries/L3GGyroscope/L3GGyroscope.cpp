@@ -16,6 +16,7 @@ void Gyroscope::init(){
 	ByteWrite(addr, 0x22, 0x00);
 	ByteWrite(addr, 0x23, 0x10);
 	ByteWrite(addr, 0x24, 0x00);
+	delay(50);
 }
 
 void Gyroscope::update(){
@@ -45,6 +46,7 @@ floatVec3 Gyroscope::ByteRead6(int I2C_Address, int Reg_Address){
 		result.x = i2c.receive(1) | (i2c.receive(1) << 8);
 		result.y = i2c.receive(1) | (i2c.receive(1) << 8);
 		result.z = i2c.receive(1) | (i2c.receive(0) << 8);
+		i2c.endTransmission();
 	}
 	else {
 		Wire.beginTransmission(I2C_Address);

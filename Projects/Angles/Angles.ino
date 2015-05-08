@@ -8,7 +8,7 @@
 #include "ADNS9800.h"
 
 #define BAUDRATE 230400 //Recommended 230400
-#define SENSORNUMBER 0 //The sensor to monitor (0 - 5)
+#define SENSORNUMBER 5 //The sensor to monitor (0 - 5)
 
 #define SCL 2
 #define SDA1 3
@@ -28,29 +28,18 @@ void setup(){
   accel.init();
   compass = Compass(SDA1 + SENSORNUMBER, SCL);
   compass.init();
-  hasRoll = false;
+  hasRoll = true;
 }
 
 void loop(){
-  float x;
-  float y;
-  
   floatVec3 angle;
   accel.update();
   compass.update();
   floatVec3 acc = accel.getFiltered();
   floatVec3 mag = compass.getFiltered();
-  //Use palm angles to determine hasRoll
-  if (SENSORNUMBER == 0){
-    floatVec3 pRot = calcAngles(acc, mag);
-    if (abs(pRot.x) > ROLLTHRESH1 && hasRoll == false && abs(pRot.y) < PITCHTHRESH)
-      hasRoll = true;
-    if ((abs(pRot.x) < ROLLTHRESH2 && hasRoll == true) || abs(pRot.y) > PITCHTHRESH){
-      hasRoll = false;
-    }
-  }
-  if (hasRoll) angle = calcAngles(acc, mag);
-  else angle = calcAnglesNoRoll(acc, mag);
+  angle = calcAngles(acc, mag);
+  if (abs(angle.y) > PITCHTHRESH)
+    angle = calcAnglesNoRoll(acc, mag);
   sPrintF(angle.x, angle.y, angle.z, false);
   sPrintF(acc.x, acc.y, acc.z, false);
   sPrintF(mag.x, mag.y, mag.z, true);

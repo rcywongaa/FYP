@@ -164,9 +164,13 @@ void SoftI2CMaster::send(char* data)
 // must be called in:
 // slave tx event callback
 // or after beginTransmission(address)
-void SoftI2CMaster::send(int data)
+uint8_t SoftI2CMaster::send(int data)
 {
-    send((uint8_t)data);
+    return send((uint8_t)data);
+}
+
+void SoftI2CMaster::repStart(void){
+	i2c_start();
 }
 
 //--------------------------------------------------------------------
@@ -265,6 +269,7 @@ void SoftI2CMaster::i2c_repstart(void)
 //
 void SoftI2CMaster::i2c_stop(void)
 {
+	i2c_sda_lo();
     i2c_scl_hi();
     _delay_us(i2cbitdelay);
 

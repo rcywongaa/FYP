@@ -1,6 +1,6 @@
 #include "CompFilter.h"
 
-#define DWEIGHT 0.85
+#define DWEIGHT 0.99  //0 ~ 1
 CompFilter::CompFilter(){
 	prevAngle.x = 0.0;
 	prevAngle.y = 0.0;

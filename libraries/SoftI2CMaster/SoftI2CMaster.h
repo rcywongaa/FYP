@@ -51,8 +51,9 @@ public:
   uint8_t beginTransmission(int address);
   uint8_t endTransmission(void);
   uint8_t send(uint8_t);
+  void repStart(void);
   void send(uint8_t*, uint8_t);
-  void send(int);
+  uint8_t send(int);
   void send(char*);
 
   uint8_t requestFrom(int address);

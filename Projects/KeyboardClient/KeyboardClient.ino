@@ -47,7 +47,7 @@ int yDistance
 #define PITCHTHRESH 75.0 * PI / 180.0
 
 //Tap Detection Constants
-#define TAPTHRESH 250
+#define TAPTHRESH 150
 #define TIMEOUT 6 //max 1 tap per 0.25 sec
 #define WINDOWSIZE 4
 
@@ -56,9 +56,6 @@ static Compass compass[SENSORCOUNT];
 static Accelerometer accel[SENSORCOUNT];
 static Gyroscope gyroscope[SENSORCOUNT];
 static bool hasRoll = false;
-static floatVec3 acc;
-static floatVec3 mag;
-static floatVec3 gyr;
 static floatVec3 angles[SENSORCOUNT];
 static OpticalSensor optic;
 
@@ -91,6 +88,7 @@ void setup(){
   optic.init();
   time = micros();
   dt = 0.0;
+  
   mode = MOUSEMODE;
 }
 
@@ -98,33 +96,35 @@ void loop(){
   if (Serial.available()) mode = Serial.read();
   
   long curr = micros();
-  dt = (float)(curr - time)/1000000.0;
+  dt = 0.05; //(float)(curr - time)/1000000.0;
   time = curr;
+  
+  float tapMax = 0.0;
+  int tapIndex = 0;
+  
+  floatVec3 incAngles;
   
   for (int i = 0; i < SENSORCOUNT; i++){
     accel[i].update();
     compass[i].update();
-    acc = accel[i].getFiltered();
-    mag = compass[i].getFiltered();
-    //Use palm angles to determine hasRoll
-    if (i == 0){
-      floatVec3 pRot = calcAngles(acc, mag);
-      //if (abs(pRot.x) > ROLLTHRESH1 && hasRoll == false && abs(pRot.y) < PITCHTHRESH)
-      if (mode == MOUSEMODE && abs(pRot.y) < PITCHTHRESH)
-        hasRoll = true;
-      else
-        hasRoll = false;
-      //if ((abs(pRot.x) < ROLLTHRESH2 && hasRoll == true) || abs(pRot.y) > PITCHTHRESH)
-    }
-    //Calculate angles of other fingers
-    floatVec3 estAngles;
-    if (hasRoll) estAngles = calcAngles(acc, mag);
-    else estAngles = calcAnglesNoRoll(acc, mag);
+    floatVec3 acc = accel[i].getFiltered();
+    floatVec3 mag = compass[i].getFiltered();
+    
+    //Use palm angles to determine hasRoll?
+    floatVec3 estAngles = calcAngles(acc, mag);
+    //if (abs(pRot.x) > ROLLTHRESH1 && hasRoll == false && abs(pRot.y) < PITCHTHRESH)
+    if (abs(estAngles.y) > PITCHTHRESH) hasRoll = false;
+    else if (mode == MOUSEMODE) hasRoll = true;
+    else if (i == 0) hasRoll = true;
+    else hasRoll = false;
+    //if ((abs(pRot.x) < ROLLTHRESH2 && hasRoll == true) || abs(pRot.y) > PITCHTHRESH)
+
+    if (!hasRoll) estAngles = calcAnglesNoRoll(acc, mag);
     
     /****************** COMPLEMENTARY FILTER ***************/
     gyroscope[i].update();
-    gyr = gyroscope[i].getRaw();
-    angles[i] = filter[i].evaluate(estAngles, gyr, dt);
+    incAngles = gyroscope[i].getRaw();
+    angles[i] = filter[i].evaluate(estAngles, incAngles, dt);
     //angles[i] = estAngles;
     /**************** TAP DETECTION ********************/
     if (i == 0) //Ignore tap detection for palm
@@ -132,8 +132,8 @@ void loop(){
     else {
       int k = i-1; //But arrays still start at 0...
       taps[k] = false;
-      int maxVal = 0;
-      int minVal = 1e9;
+      float maxVal = 0.0;
+      float minVal = 1.0e9;
       floatVec3 raw = accel[i].getRaw();
       if (counter[k] < TIMEOUT)
         counter[k]++; 
@@ -145,11 +145,19 @@ void loop(){
         maxVal = max(window[k][j], maxVal);
         minVal = min(window[k][j], minVal);
       }
-      if (maxVal - minVal > TAPTHRESH && counter[k] == TIMEOUT){
-        taps[k] = true;
-        counter[k] = 0;
+      float tapEnergy = maxVal - minVal;
+      if (tapEnergy > TAPTHRESH && counter[k] == TIMEOUT){
+        if (tapEnergy > tapMax){
+          tapMax = tapEnergy;
+          tapIndex = k;
+        }
       }
     }
+  }
+  if (tapMax > TAPTHRESH){
+    taps[tapIndex] = true;
+    for (int i = 0; i < SENSORCOUNT - 1; i++)
+      counter[i] = 0;
   }
   
   /************* Mouse Sensor ************/
@@ -162,4 +170,5 @@ void loop(){
     distance.y = 0;
   }
   sPrint(angles, sizeof(angles) / sizeof(angles[0]),taps, sizeof(taps) / sizeof(taps[0]), distance); 
+  //sPrintF(incAngles.x, incAngles.y, incAngles.z, true);
 }
